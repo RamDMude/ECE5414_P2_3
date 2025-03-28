@@ -21,7 +21,7 @@ extern unsigned int stack_trace_save_user(unsigned long *store, unsigned int siz
 
 
 #define MAX_STACK_TRACE 16
-#define MAX_DEPTH 4
+#define MAX_DEPTH 16
 #define MAX_TOP_TASKS 20
 
 static struct rb_root sched_rbtree = RB_ROOT;
@@ -163,9 +163,9 @@ static int lkp25_p2_proc_show(struct seq_file *m, void *v)
 
     for (node = rb_last(&sched_rbtree); node && (count < MAX_TOP_TASKS); node = rb_prev(node), count++) {
         struct sched_rbentry *entry = container_of(node, struct sched_rbentry, node);
-        seq_printf(m, "%d\t%u\t%llu\t", count + 1, entry->stack_hash, entry->exec_time);
+        seq_printf(m, "Rank :%d\n%u\n%llu\n", count + 1, entry->stack_hash, entry->exec_time);
         for (int i = 0; i < min(entry->nr_entries, MAX_DEPTH); i++)
-            seq_printf(m, "%pS ", (void *)entry->stack_entries[i]);
+            seq_printf(m, "%pB \n", (void *)entry->stack_entries[i]);
         seq_puts(m, "\n");
     }
     return 0;
