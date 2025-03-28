@@ -49,22 +49,6 @@ static u64 prev_timestamp = 0;
 static struct sched_rbentry *rbtree_lookup(unsigned int nr_entries, unsigned long *entries) {
     struct rb_node *node = sched_rbtree.rb_node;
 
-    // while (node) {
-    //     struct sched_rbentry *entry = container_of(node, struct sched_rbentry, node);
-    //     int cmp = memcmp(entry->stack_entries, entries, nr_entries * sizeof(unsigned long));
-
-    //     if (entry->nr_entries == nr_entries && cmp == 0) {
-    //         return entry;
-    //     }
-
-    //     if (cmp < 0)
-    //         node = node->rb_right;entries
-    //     else
-    //         node = node->rb_left;
-    // }
-
-
-
     for (node = rb_first(&sched_rbtree); node; node= rb_next(node)){
         struct sched_rbentry *entry = container_of(node, struct sched_rbentry, node);
         if (entry->nr_entries == nr_entries && !memcmp(entry->stack_entries, entries, nr_entries * sizeof(unsigned long))){
@@ -159,11 +143,10 @@ static int lkp25_p2_proc_show(struct seq_file *m, void *v)
 	struct rb_node *node;
     int count = 0;
     
-    seq_puts(m, "Rank\tJenkins Hash\tTotal CPU Time (ns)\tStack Trace\n");
 
     for (node = rb_last(&sched_rbtree); node && (count < MAX_TOP_TASKS); node = rb_prev(node), count++) {
         struct sched_rbentry *entry = container_of(node, struct sched_rbentry, node);
-        seq_printf(m, "Rank :%d\n%u\n%llu\n", count + 1, entry->stack_hash, entry->exec_time);
+        seq_printf(m, "Rank :%d\n Jenkins Hash: %u\n Exec Time(ns)%llu\n", count + 1, entry->stack_hash, entry->exec_time);
         for (int i = 0; i < min(entry->nr_entries, MAX_DEPTH); i++)
             seq_printf(m, "%pB \n", (void *)entry->stack_entries[i]);
         seq_puts(m, "\n");
